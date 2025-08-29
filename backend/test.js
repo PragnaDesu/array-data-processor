@@ -1,7 +1,7 @@
 const http = require('http');
 
 // Test configuration
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'https://array-data-processor.onrender.com';
 let testsPassed = 0;
 let testsFailed = 0;
 
