@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Array Data Processor - REST API Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .navbar {
+            background-color: #2c3e50;
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand h3 {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: #34495e;
+        }
+
+        .main-content {
+            margin-top: 80px;
+        }
+
+        .section {
+            padding: 4rem 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-item {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-item h4 {
+            margin-bottom: 0.5rem;
+        }
+
+        .section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .code-block {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+        }
+
+        .example-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .example-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        #arrayInput {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s ease;
+        }
+
+        #arrayInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        #processBtn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        #processBtn:hover {
+            transform: translateY(-2px);
+        }
+
+        #processBtn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .connection-status {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-weight: 600;
+        }
+
+        .connection-status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .connection-status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .connection-status.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            margin: 1rem 0;
+        }
+
+        #apiResponse {
+            margin-top: 2rem;
+        }
+
+        .result-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .result-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .processing-method {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .timestamp {
+            color: #666;
+        }
+
+        .json-output {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+        .result-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .summary-item {
+            background-color: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .connection-instructions {
+            background-color: #e3f2fd;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .connection-instructions h4 {
+            color: #1565c0;
+            margin-bottom: 1rem;
+        }
+
+        .connection-instructions ol {
+            margin-left: 1rem;
+        }
+
+        .connection-instructions li {
+            margin-bottom: 0.5rem;
+        }
+
+        .connection-instructions code {
+            background-color: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-features {
+                grid-template-columns: 1fr;
+            }
+
+            .example-container {
+                grid-template-columns: 1fr;
+            }
+
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .result-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h3>Array Processor</h3>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#api" class="nav-link">API Spec</a></li>
+                <li><a href="#examples" class="nav-link">Examples</a></li>
+                <li><a href="#try" class="nav-link">Try It Out</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <!-- Home Section -->
+        <section id="home" class="section hero-section">
+            <div class="container">
+                <h1 class="hero-title">Array Data Processor</h1>
+                <p class="hero-description">
+                    A REST API that processes input arrays and returns categorized results including numbers, alphabets, 
+                    special characters, sums, and transformed strings. Built to demonstrate API design, array manipulation, 
+                    and frontend-backend integration.
+                </p>
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <h4>Smart Categorization</h4>
+                        <p>Separates numbers, alphabets, and special characters</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Mathematical Processing</h4>
+                        <p>Calculates sums and identifies odd/even numbers</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>String Transformation</h4>
+                        <p>Creates concatenated strings with intelligent sorting</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Specification Section -->
+        <section id="api" class="section">
+            <div class="container">
+                <h2>API Specification</h2>
+                <p>The Array Data Processor API accepts POST requests with JSON array data and returns structured results.</p>
+                
+                <h3>Endpoint</h3>
+                <div class="code-block">POST /process</div>
+                
+                <h3>Request Format</h3>
+                <div class="code-block">{
+  "data": ["a", "1", "23", "$", "B"]
+}</div>
+                
+                <h3>Response Format</h3>
+                <div class="code-block">{
+  "is_success": true,
+  "user_id": "demo_user_29082025",
+  "email": "demo@example.com",
+  "roll_number": "12345",
+  "odd_numbers": ["1", "23"],
+  "even_numbers": [],
+  "alphabets": ["B", "a"],
+  "special_characters": ["$"],
+  "sum": "24",
+  "concat_string": "Ba"
+}</div>
+
+                <h3>Field Descriptions</h3>
+                <ul>
+                    <li><strong>odd_numbers</strong>: Array of odd numbers as strings</li>
+                    <li><strong>even_numbers</strong>: Array of even numbers as strings</li>
+                    <li><strong>alphabets</strong>: Array of alphabetic characters (uppercase first)</li>
+                    <li><strong>special_characters</strong>: Array of non-alphanumeric characters</li>
+                    <li><strong>sum</strong>: Sum of all numbers as string</li>
+                    <li><strong>concat_string</strong>: Concatenated alphabets (uppercase first, then lowercase)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Examples Section -->
+        <section id="examples" class="section">
+            <div class="container">
+                <h2>Examples</h2>
+                <p>Here are some examples showing different input scenarios and their corresponding outputs:</p>
+                
+                <div class="example-container">
+                    <div class="example-item">
+                        <h3>Example 1: Mixed Data</h3>
+                        <h4>Request:</h4>
+                        <div class="code-block">{
+  "data": ["a", "1", "23", "$", "B"]
+}</div>
+                        <h4>Response:</h4>
+                        <div class="code-block">{
+  "is_success": true,
+  "user_id": "demo_user_29082025",
+  "email": "demo@example.com",
+  "roll_number": "12345",
+  "odd_numbers": ["1", "23"],
+  "even_numbers": [],
+  "alphabets": ["B", "a"],
+  "special_characters": ["$"],
+  "sum": "24",
+  "concat_string": "Ba"
+}</div>
+                    </div>
+
+                    <div class="example-item">
+                        <h3>Example 2: Even Numbers</h3>
+                        <h4>Request:</h4>
+                        <div class="code-block">{
+  "data": ["2", "4", "z", "Z", "@", "6"]
+}</div>
+                        <h4>Response:</h4>
+                        <div class="code-block">{
+  "is_success": true,
+  "user_id": "demo_user_29082025",
+  "email": "demo@example.com",
+  "roll_number": "12345",
+  "odd_numbers": [],
+  "even_numbers": ["2", "4", "6"],
+  "alphabets": ["Z", "z"],
+  "special_characters": ["@"],
+  "sum": "12",
+  "concat_string": "Zz"
+}</div>
+                    </div>
+
+                    <div class="example-item">
+                        <h3>Example 3: Complex Mix</h3>
+                        <h4>Request:</h4>
+                        <div class="code-block">{
+  "data": ["x", "5", "y", "11", "#", "3"]
+}</div>
+                        <h4>Response:</h4>
+                        <div class="code-block">{
+  "is_success": true,
+  "user_id": "demo_user_29082025",
+  "email": "demo@example.com",
+  "roll_number": "12345",
+  "odd_numbers": ["5", "11", "3"],
+  "even_numbers": [],
+  "alphabets": ["x", "y"],
+  "special_characters": ["#"],
+  "sum": "19",
+  "concat_string": "xy"
+}</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Try It Out Section -->
+        <section id="try" class="section">
+            <div class="container">
+                <h2>Try It Out</h2>
+                <p>Test the API with your own data. Enter a JSON array below and click "Process Array" to see the results.</p>
+                
+                <!-- Status indicators -->
+                <div id="backendStatus" class="connection-status" style="display: none;"></div>
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+                
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="arrayInput">JSON Input:</label>
+                        <textarea 
+                            id="arrayInput"
+                            placeholder='{"data": ["a", "1", "2", "b", "B", "$", "3"]}'
+                        ></textarea>
+                    </div>
+                    
+                    <button id="processBtn" type="button">Process Array</button>
+                    
+                    <div id="apiResponse">
+                        <p style="color: #666; font-style: italic;">Results will appear here after processing...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section">
+            <div class="container">
+                <h2>About This Project</h2>
+                <p>
+                    The Array Data Processor is a demonstration project showcasing modern web development practices 
+                    including REST API design, array manipulation algorithms, and frontend-backend integration.
+                </p>
+                
+                <h3>Technologies Used</h3>
+                <ul>
+                    <li><strong>Backend:</strong> Node.js, Express.js, CORS, Helmet</li>
+                    <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript (ES6+)</li>
+                    <li><strong>Testing:</strong> Custom test suite with automated API testing</li>
+                    <li><strong>Deployment:</strong> Ready for Vercel, Railway, Render, Heroku</li>
+                </ul>
+                
+                <h3>Features</h3>
+                <ul>
+                    <li>Real-time array processing with categorization</li>
+                    <li>Intelligent number separation (odd/even)</li>
+                    <li>Alphabetic character sorting and concatenation</li>
+                    <li>Special character identification</li>
+                    <li>Mathematical sum calculation</li>
+                    <li>Comprehensive error handling</li>
+                    <li>Responsive web design</li>
+                    <li>Backend health monitoring</li>
+                </ul>
+                
+                <h3>Developer Information</h3>
+                <p>
+                    <strong>Created by:</strong> Your Name<br>
+                    <strong>Email:</strong> your.email@example.com<br>
+                    <strong>GitHub:</strong> <a href="https://github.com/your-username/array-data-processor">your-username/array-data-processor</a><br>
+                    <strong>Purpose:</strong> Demonstrating full-stack development skills and API design principles
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
