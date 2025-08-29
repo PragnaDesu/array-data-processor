@@ -1,7 +1,7 @@
 // Array Data Processor - Frontend (connects to Node.js backend)
 
 // Configuration
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'https://array-data-processor.onrender.com';
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
