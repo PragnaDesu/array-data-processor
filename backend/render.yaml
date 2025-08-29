@@ -1,0 +1,12 @@
+# A YAML file named render.yaml
+# Defines the web service for Render
+services:
+  - type: web
+    name: array-data-processor
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
